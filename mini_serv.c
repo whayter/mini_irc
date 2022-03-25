@@ -4,6 +4,8 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct s_client {
     int id;
@@ -92,6 +94,7 @@ t_client* create_client()
     {
         while (it->next)
             it = it->next;
+        it->next = new_client;
     }
     return (new_client);
 }
@@ -103,13 +106,13 @@ t_client* delete_client(fd_set* fds, t_client* client)
 
     close(client->fd);
     FD_CLR(client->fd, fds);
-    if (it = client) {
+    if (it->id == client->id) {
         clients = client->next;
         ret = clients;
     }
     while (it)
     {
-        if (it->next == client)
+        if (it->next->id == client->id)
         {
             it->next = client->next;
             ret = client->next;
@@ -129,7 +132,7 @@ void broadcast_message(char* message, fd_set* fds, int client_fd)
 
     while (it)
     {
-        if (it->fd != client_fd && FD_ISSET(it->fd, &fds))
+        if (it->fd != client_fd && FD_ISSET(it->fd, fds))
             send(it->fd, message, strlen(message), 0);
         it = it->next;
     }
@@ -203,17 +206,18 @@ int main(int ac, char** av)
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         error("Fatal error");
-
 	bzero(&servaddr, sizeof(servaddr)); 
 	servaddr.sin_family = AF_INET; 
 	servaddr.sin_addr.s_addr = htonl(2130706433);
-	servaddr.sin_port = htons(8081);
+	servaddr.sin_port = htons(atoi(av[1]));
 
 	if ((bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr))) != 0)
+    {
+        close(sockfd);
         error("Fatal error");
-
+    }
 	if (listen(sockfd, 10) != 0)
         error("Fatal error");
-
+    run();
     return (0);
 }
