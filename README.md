@@ -1,4 +1,6 @@
-## 42 common core - exam_rank_06
+## 42 - exam_rank_06
+
+Create a simple irc server.
 
 **Internet Relay Chat** (IRC) is a text-based chat (instant messaging) system. IRC is designed for group communication in discussion forums, called channels, but also allows one-on-one communication via private messages as well as chat and data transfer, including file sharing.
 
